@@ -88,5 +88,14 @@ export interface RawDeparture {
 }
 
 export interface RawDepartureMonitorResponse {
+  dm?: {
+    points?: {
+      // Present even when departureList is null/empty — e.g. a stop closed for
+      // construction still reports its own disruption notice here.
+      point?: {
+        infos?: { info?: RawDmInfo | RawDmInfo[] } | null;
+      };
+    };
+  };
   departureList?: RawDeparture | RawDeparture[];
 }

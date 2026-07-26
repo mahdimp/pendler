@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnDestroy, output, signal } from "@angular/core";
 import { EfaService } from "../../core/efa.service";
-import type { Departure } from "../../core/efa.types";
+import type { Departure, DisruptionInfo } from "../../core/efa.types";
 import type { Stop } from "../../core/storage.service";
 import { StorageService } from "../../core/storage.service";
 import { formatPlatform, formatTime } from "../../core/time";
@@ -37,8 +37,14 @@ const REFRESH_MS = 10_000;
           @if (error()) {
             <p style="color: var(--destructive)" role="alert">{{ error() }}</p>
           }
-          @if (departures().length === 0 && !error()) {
+          @if (!loaded() && !error()) {
             <app-spinner label="Loading departures…" />
+          }
+
+          <app-disruption-list [infos]="stationNotices()" />
+
+          @if (loaded() && !error() && departures().length === 0) {
+            <p class="dim">No upcoming departures for this stop right now.</p>
           }
 
           <div class="stack">
@@ -58,7 +64,9 @@ const REFRESH_MS = 10_000;
               </button>
             }
           </div>
-          <p class="micro">Auto-refreshes every 10s</p>
+          @if (departures().length > 0) {
+            <p class="micro">Auto-refreshes every 10s</p>
+          }
         </div>
       }
       @case ("detail") {
@@ -91,8 +99,11 @@ export class StationBoard implements OnDestroy {
   step = signal<Step>("pick");
   station = signal<Stop | null>(null);
   departures = signal<Departure[]>([]);
+  stationNotices = signal<DisruptionInfo[]>([]);
   selected = signal<Departure | null>(null);
   error = signal("");
+  /** Distinct from departures().length === 0 — that's ambiguous between "not fetched yet" and "fetched, genuinely none". */
+  loaded = signal(false);
 
   private timer?: ReturnType<typeof setInterval>;
 
@@ -116,8 +127,15 @@ export class StationBoard implements OnDestroy {
     if (!station) return;
     this.efa
       .getDepartures(station.id)
-      .then((d) => this.departures.set(d))
-      .catch((err) => this.error.set(String(err)));
+      .then((board) => {
+        this.departures.set(board.departures);
+        this.stationNotices.set(board.stationNotices);
+        this.loaded.set(true);
+      })
+      .catch((err) => {
+        this.error.set(String(err));
+        this.loaded.set(true);
+      });
   }
 
   ngOnDestroy(): void {

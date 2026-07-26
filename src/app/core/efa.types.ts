@@ -40,6 +40,12 @@ export interface Departure {
   infos: DisruptionInfo[];
 }
 
+export interface DepartureBoard {
+  departures: Departure[];
+  /** Station-level notices (e.g. a closure) — present even when departures is empty. */
+  stationNotices: DisruptionInfo[];
+}
+
 export interface Journey {
   legs: JourneyLeg[];
   departurePlanned: Date;

@@ -12,7 +12,7 @@ import type {
   RawTimePoint,
   RawTripResponse,
 } from "./efa-raw.types";
-import type { Departure, DisruptionInfo, Journey, JourneyLeg, StopFinderResult } from "./efa.types";
+import type { Departure, DepartureBoard, DisruptionInfo, Journey, JourneyLeg, StopFinderResult } from "./efa.types";
 
 const STOPFINDER_URL = "https://www3.vvs.de/vvs/widget/XML_STOPFINDER_REQUEST";
 const TRIP_URL = "https://www3.vvs.de/mngvvs/XML_TRIP_REQUEST2";
@@ -171,7 +171,7 @@ export class EfaService {
   }
 
   /** Queries upcoming departures for a single station. */
-  async getDepartures(stopId: string, limit = 15): Promise<Departure[]> {
+  async getDepartures(stopId: string, limit = 15): Promise<DepartureBoard> {
     const now = new Date();
     const params = new URLSearchParams({
       locationServerActive: "1",
@@ -201,9 +201,9 @@ export class EfaService {
     if (!res.ok) throw new Error(`DepartureMonitor request failed: ${res.status}`);
     const data = (await res.json()) as RawDepartureMonitorResponse;
     const raw = data.departureList;
-    if (!raw) return [];
-    const list: RawDeparture[] = Array.isArray(raw) ? raw : [raw];
-    return list.map(parseDeparture);
+    const departures = raw ? (Array.isArray(raw) ? raw : [raw]).map(parseDeparture) : [];
+    const stationNotices = parseDmInfos(data.dm?.points?.point?.infos?.info);
+    return { departures, stationNotices };
   }
 
   /** Queries journey options between two stops near the given time. */
