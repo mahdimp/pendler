@@ -22,4 +22,7 @@ export const LANGUAGE_OPTIONS: LanguageOption[] = [
   { code: "ja", label: "日本語" },
   { code: "ko", label: "한국어" },
   { code: "hi", label: "हिन्दी" },
+  { code: "fa", label: "فارسی" },
+  { code: "ku", label: "Kurdî (Kurmancî)" },
+  { code: "ckb", label: "کوردی (سۆرانی)" },
 ];
