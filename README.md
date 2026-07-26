@@ -41,6 +41,19 @@ npm run build      # production build -> dist/pendler/browser
 The build output is fully static — serve it from any static host (GitHub Pages, Netlify, S3,
 `python -m http.server`, etc.). No environment variables, no server-side config.
 
+## Deployment
+
+Pushing to `main` triggers `.github/workflows/deploy.yml`, which builds the app
+with `--base-href /<repo-name>/` and publishes it to GitHub Pages via GitHub
+Actions.
+
+Before the first deploy:
+
+1. The repo must be **public** (GitHub Pages needs a paid plan to publish from a private repo).
+2. In the repo's Settings → Pages, set **Build and deployment → Source** to **GitHub Actions**.
+
+Live at: https://mahdimp.github.io/pendler/
+
 ## Stack
 
 Angular 22 (standalone components, signals, zoneless-friendly change detection), no CSS
