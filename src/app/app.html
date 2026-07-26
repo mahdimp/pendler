@@ -1,0 +1,41 @@
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<header class="app-bar">
+  <span class="icon-badge icon-badge-primary" style="width:32px;height:32px;border-radius: var(--radius-sm)">
+    <app-icon name="train-front" [size]="20" />
+  </span>
+  <span class="app-bar-title">pendler</span>
+  <button
+    class="btn-ghost"
+    style="margin-left: auto; min-width: 44px; justify-content: center"
+    (click)="view.set('settings')"
+    aria-label="Settings"
+  >
+    <app-icon name="settings" [size]="20" />
+  </button>
+</header>
+
+<main class="content" id="main-content" tabindex="-1">
+  @switch (view()) {
+    @case ("home") {
+      <div class="view-enter">
+        <app-home (select)="view.set($event)" />
+      </div>
+    }
+    @case ("stationBoard") {
+      <div class="view-enter">
+        <app-station-board (back)="view.set('home')" />
+      </div>
+    }
+    @case ("tripSearch") {
+      <div class="view-enter">
+        <app-trip-search (back)="view.set('home')" />
+      </div>
+    }
+    @case ("settings") {
+      <div class="view-enter">
+        <app-settings (back)="view.set('home')" />
+      </div>
+    }
+  }
+</main>
