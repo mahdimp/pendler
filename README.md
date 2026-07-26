@@ -60,13 +60,6 @@ Angular 22 (standalone components, signals, zoneless-friendly change detection),
 framework — hand-written tokens/utility classes in `src/styles.css`. `@angular/service-worker`
 handles the PWA manifest/offline shell.
 
-## Related project
-
-[`pendler-cli`](../pendler-cli) is a separate, local-only CLI/TUI companion for the same VVS/SSB
-data, built for proactive delay *alerting* (a background daemon + desktop notifications) rather
-than on-demand lookups — a use case this browser-only app deliberately doesn't cover, since
-reliable background alerting needs something that keeps running when the browser tab is closed.
-
 ## License
 
 MIT — see [LICENSE](./LICENSE).
