@@ -89,9 +89,9 @@ function journeyLabel(j: Journey): string {
         }
         @case ("results") {
           <h1>{{ from()?.name }} → {{ to()?.name }}</h1>
-          <button class="btn" (click)="save()" [disabled]="justSaved()">
+          <button class="btn" (click)="save()" [disabled]="alreadySaved()">
             <app-icon name="bookmark" [size]="16" />
-            {{ justSaved() ? "Saved" : "Save this route" }}
+            {{ alreadySaved() ? "Saved" : "Save this route" }}
           </button>
           <div class="stack">
             @for (row of rows(); track $index; let i = $index) {
@@ -148,7 +148,6 @@ export class TripSearch {
   journeys = signal<Journey[]>([]);
   selected = signal<Journey | null>(null);
   error = signal("");
-  justSaved = signal(false);
 
   readonly rows = computed<JourneyRow[]>(() =>
     this.journeys().map((journey) => ({
@@ -157,6 +156,15 @@ export class TripSearch {
       worstDelay: Math.max(journey.departureDelayMinutes, journey.arrivalDelayMinutes),
     })),
   );
+
+  /** Reflects the actual saved-routes list, not just "saved during this visit" — so a route
+   * saved earlier (or picked via the saved-routes quick-start) correctly shows as already saved. */
+  readonly alreadySaved = computed(() => {
+    const from = this.from();
+    const to = this.to();
+    if (!from || !to) return false;
+    return this.storage.savedRoutes().some((r) => r.from.id === from.id && r.to.id === to.id);
+  });
 
   pickFrom(stop: Stop): void {
     this.storage.touchRecentStation(stop);
@@ -193,7 +201,6 @@ export class TripSearch {
     const from = this.from();
     const to = this.to();
     if (!from || !to) return;
-    this.justSaved.set(false);
     this.step.set("loading");
     this.efa
       .getTrips(from.id, to.id, new Date(), 5)
@@ -222,6 +229,5 @@ export class TripSearch {
     const to = this.to();
     if (!from || !to) return;
     this.storage.saveRoute(from, to);
-    this.justSaved.set(true);
   }
 }
